@@ -89,3 +89,15 @@ h2 {
 .hole.show .mole {
   transform: translateY(0);
 }
+
+.mole.hit {
+  transform: scale(0.85);
+  filter: brightness(1.3);
+  transition: transform 0.1s ease, filter 0.1s ease;
+}
+
+label, select {
+  font-size: 18px;
+  margin: 10px;
+  padding: 5px;
+}

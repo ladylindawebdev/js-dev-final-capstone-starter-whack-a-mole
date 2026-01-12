@@ -1,21 +1,37 @@
-const holes = document.querySelectorAll('.hole');
-const moles = document.querySelectorAll('.mole');
-const startButton = document.querySelector('#start');
+document.addEventListener("DOMContentLoaded", () => {
 
-const score = document.querySelector('#score');
-const timerDisplay = document.querySelector('#timer');
+  const holes = document.querySelectorAll('.hole');
+  const moles = document.querySelectorAll('.mole');
+  const startButton = document.querySelector('#start');
+  const score = document.querySelector('#score');
+  const timerDisplay = document.querySelector('#timer');
+  const difficultySelect = document.getElementById("difficulty");
+  difficultySelect.addEventListener("change", () => {
+  difficulty = difficultySelect.value;
+});
 
-let time = 0;
-let timer;
-let lastHole = 0;
-let points = 0;
-let difficulty = "hard";
-let moleTimeout;
-const hitSound = new Audio('./assets/sounds/pop.wav');
-const bgMusic = new Audio('./assets/sounds/music.wav');
+  let time = 0;
+  let timer;
+  let lastHole = 0;
+  let points = 0;
+  let difficulty = "hard";
+  let moleTimeout;
+let hitSound;
+let bgMusic;
 
-bgMusic.loop = true;
-bgMusic.volume = 0.4;
+try {
+  hitSound = new Audio('./assets/sounds/pop.wav');
+  bgMusic = new Audio('./assets/sounds/music.wav');
+
+  bgMusic.loop = true;
+  bgMusic.volume = 0.4;
+} catch (e) {
+  hitSound = null;
+  bgMusic = null;
+}
+  bgMusic.loop = true;
+  bgMusic.volume = 0.4;
+
 
 /**
  * Generates a random integer within a range.
@@ -53,9 +69,7 @@ function setDelay(difficulty) { if (difficulty === "easy") {
   } else if (difficulty === "hard") {
     return randomInteger(600, 1200);
   } 
-}
-  // TODO: Write your code here.
-  
+} 
 /**
  * Chooses a random hole from a list of holes.
  *
@@ -78,8 +92,7 @@ function chooseHole(holes) {
   }
   lastHole = hole;
   return hole;
-  }
-  // TODO: Write your code here.
+}
 
 /**
 *
@@ -110,7 +123,6 @@ function gameOver() {
     return gameStopped;
   } 
 }
-  // TODO: Write your code here
 
 /**
 *
@@ -137,7 +149,6 @@ function showUp() {
 */
 function showAndHide(hole, delay){
   toggleVisibility(hole);
-  // TODO: call the toggleVisibility function so that it adds the 'show' class.
   
   moleTimeout = setTimeout(() => {
     toggleVisibility(hole);
@@ -145,9 +156,6 @@ function showAndHide(hole, delay){
   }, delay); 
   return moleTimeout;
 }
-    // TODO: call the toggleVisibility function so that it removes the 'show' class when the timer times out.
-
-  // TODO: change the setTimeout delay to the one provided as a parameter
 
 /**
 *
@@ -159,8 +167,6 @@ function toggleVisibility(hole){
   hole.classList.toggle('show');
   return hole;
 }
-  // TODO: add hole.classList.toggle so that it adds or removes the 'show' class.
-
 
 /**
 *
@@ -177,7 +183,6 @@ function updateScore() {
  score.textContent = points;
   return points;
 }
-  // TODO: Write your code here
 
 /**
 *
@@ -191,10 +196,29 @@ function clearScore() {
   score.textContent = points;
   return points;
 }
-  // TODO: Write your code here
-  // points = 0;
-  // score.textContent = points;
 
+/**
+* the points.
+*
+*/
+function clearScore() {
+  points = 0;
+  score.textContent = points;
+  return points;
+}
+
+/**
+*
+* This function clears the score by setting `points = 0`. It also updates
+* the board using `score.textContent = points`. The function should return
+* the points.
+*
+*/
+function clearScore() {
+  points = 0;
+  score.textContent = points;
+  return points;
+}
 
 /**
 *
@@ -203,12 +227,13 @@ function clearScore() {
 */
 function updateTimer() {
   if (time > 0) {
-    time -= 1;                 // decrease the time
-    timerDisplay.textContent = time; // update the UI
+    time -= 1;
+    timerDisplay.textContent = time; 
+  } else {
+    clearInterval(timer);
   }
-  return time;                 // return the updated time
+  return time;
 }
-
 
 /**
 *
@@ -230,9 +255,19 @@ timer = setInterval(updateTimer, 1000);
 *
 */
 function whack(event) {
+  // Make function test-safe if event is missing
+  if (!event || !event.target) return;
+
   if (event.target.classList.contains('mole')) {
-    hitSound.currentTime = 0;
-    hitSound.play();
+    // Play sound safely
+    if (hitSound) {
+      hitSound.currentTime = 0;
+      hitSound.play().catch(() => {});
+    }
+
+    event.target.classList.add("hit");
+    setTimeout(() => event.target.classList.remove("hit"), 200);
+
     return updateScore();
   }
 }
@@ -249,7 +284,6 @@ function setEventListeners() {
 
   return moles;
 }
-
 
 
 /**
@@ -269,12 +303,18 @@ function setDuration(duration) {
 * timer using clearInterval. Returns "game stopped".
 *
 */
-function stopGame(){
-  // stopAudio(song);  //optional
+function stopGame() {
   clearInterval(timer);
   clearTimeout(moleTimeout);
+
+  if (bgMusic) {
+    bgMusic.pause();
+    bgMusic.currentTime = 0;
+  }
+
   return "game stopped";
 }
+
 
 /**
 * This function starts the game when the `startButton` is clicked and initializes the game by performing the following steps: 
@@ -298,11 +338,15 @@ function startGame(){
   setEventListeners();
   startTimer();
   showUp();
-  bgMusic.play();
+  if (bgMusic) {
+  bgMusic.play().catch(() => {});
+}
   return "game started";
 }
 
 startButton.addEventListener("click", startGame);
+
+});
 
 
 // Please do not modify the code below.
